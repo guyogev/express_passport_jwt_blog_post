@@ -2,7 +2,7 @@
 
 JSON Web Token is a self-contained way for securely transmitting information between parties as a JSON object.
 
-Since JWT can encode users data, is a great way to handle API authentication & authorization.
+Since JWT can encode users data, its a great way to handle API authentication & authorization.
 However, JWT are stateless, so we can't use standard Sessions. But don't despair, with a little bit of configuration,
 we can manage all our authentication & authorization requirements in a single place.
 
@@ -13,7 +13,7 @@ Authentication is done by defining "strategies".
 
 ### What we're gonna do?
 We'll secure our app endpoints with JWT. Once a user authenticate himself by supplying password, we'll generate a JWT for him.
-The user can them interact with our API by supplying this token at his requests headers/cookies.
+The user can then interact with our API by supplying this token at his requests headers/cookies.
 
 I assume you already familiar with Express, Sequelize, Mocha & Chai.
 
@@ -146,6 +146,7 @@ export const index = async (req, res) => {
 ### Router
 
 ```javascript
+// routes/index.js
 import express from 'express';
 import passport from 'passport';
 var router = express.Router();
@@ -167,11 +168,11 @@ export default router;
 
 ### User Password
 
-We now can perform GET requests, and view our users data, but so does everyone else.
+We now can perform GET requests, and view our users data, but so does everyone else. Not ideal...
 
-We want to identify our users by email/password. Before creating & updating users
- - we'll make sure emails are lowercase
- - emails are unique
+We want to identify our users by email/password. Before creating & updating users we'll
+ - make sure emails are lowercase
+ - make sure emails are unique
  - hash passwords 
 
 ```javascript
@@ -234,11 +235,11 @@ module.exports = function(sequelize, DataTypes) {
 ```
 
 ### Password Authentication Strategy
-We'll user `passport-local` to define our by_password strategy.
-This strategy receives email/password as input, and try to validate the user.
+We'll use `passport-local` to define our by_password strategy.
+This strategy receives email/password as input, and trys to validate the user.
 
 ```javascript
-// passport_strategies
+// passport_strategies.js
 import passport from 'passport';
 import bcrypt from 'bcrypt-nodejs';
 
@@ -307,8 +308,6 @@ jwtHelper.getJwtSecret = () => {
 };
 
 jwtHelper.generateJwt = (user) => {
-  const expiry = new Date();
-  expiry.setDate(expiry.getDate() + 1);
   return jwt.sign({
     id: user.id,
   }, jwtHelper.getJwtSecret());
@@ -348,7 +347,7 @@ router.post('/authenticate', passport.authenticate('by_password'), authControlle
 Passport was kind to us, and supplied `ExtractJwt.fromAuthHeader` to extract the JWT token from requests header.
 It assumes client will add the token in the `Authorization` header with the value `JWT <...token...>`
 
-One important node, is that after we decode the JWT token, we do not pass that as our user object.
+One important note, is that after we decode the JWT token, we do not pass that as our user object.
 We fetch the latest user data from DB, incase the token is out of date (for example, the user was deleted by system admin)
 
 ```javascript
@@ -381,7 +380,7 @@ We fetch the latest user data from DB, incase the token is out of date (for exam
   passport.use('jwt', jwtLogin);
 ```
 
-Now we can protect out `/user/index` endpoint
+Now we can protect our `/user/index` endpoint
 
 ```javascript
 // routes/index.js
@@ -420,7 +419,7 @@ Our strategy will look for JWT token on the request header, if not found, it wil
   };
 ```
 ### Testing
-Thats it, we can now use tools such as cUrl, postman to check our setup
+Thats it, we can now use tools such as cUrl or Postman to check our setup:
   - POST `/authenticate` with email/password params should return a JWT token.
   - GET `/user/index` with the token in the cookies or Authorization header will give us the user list
 
@@ -507,7 +506,7 @@ describe('user routes', () => {
     });
 
     describe('when jwt is missing', () => {
-      it('responds with status 200 and valid JWT token', (done) => {
+      it('responds with status 401', (done) => {
         request(server)
           .get('/user/index')
           .expect(401)
@@ -515,7 +514,7 @@ describe('user routes', () => {
       });
     });
 
-    describe('when jwt in header', () => {
+    describe('when jwt found', () => {
       let jwt_token = null;
       before((done) => {
         db.User.findOne({ where: { email: user_params.email } })
@@ -524,14 +523,14 @@ describe('user routes', () => {
             done();
           });
       });
-      it('responds with status 200', (done) => {
+      it('in header', (done) => {
         request(server)
           .get('/user/index')
           .set('Authorization', `JWT ${jwt_token}`)
           .expect(200)
           .end(done);
       });
-      it('responds with status 200', (done) => {
+      it('in cookies', (done) => {
         request(server)
           .get('/user/index')
           .set('Cookie', [`jwt_token=${jwt_token}`])
@@ -548,4 +547,4 @@ describe('user routes', () => {
  - [PassportJS](http://passportjs.org/)
  - [Passport Local](https://github.com/jaredhanson/passport-local)
  - [Passport JWT](https://www.npmjs.com/package/passport-jwt)
- - (examples source code)
+ - [Working example](https://github.com/guyogev/express_passport_jwt_blog_post)

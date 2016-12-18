@@ -1,0 +1,12 @@
+# build process folders
+
+node_modules/
+client/application.js
+client/application.css
+server.build
+
+# garbage files
+npm-debug.log
+
+# developer specific tools
+.vscode

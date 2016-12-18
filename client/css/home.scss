@@ -1,0 +1,7 @@
+@import '_colors.scss';
+@import '_sizes.scss';
+.home {
+  border: 1px solid black;
+  margin: auto;
+  width: $main-view-width;
+}

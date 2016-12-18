@@ -1,0 +1,34 @@
+<!-- App layout, use it to wrap static content around the angualr app. -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title><%= title %></title>
+    <%if (DEV_SERVER) { %>
+      <link rel="stylesheet" href="http://localhost:8080/application.css">
+    <% } else { %>
+      <link rel="stylesheet" href="application.css">
+    <% } %>
+  </head>
+  <body>
+    <%if (DEV_SERVER) { %>
+      <h1> Running in Development mode, Live reload available </h1>
+    <% } else { %>
+      <h1> To work with Live reload run 'npm run dev' </h1>
+    <% } %>
+
+    <%- include('partials/header') %>
+    <div id="app"></div>
+    <%- include('partials/footer') %>
+
+
+    <%if (DEV_SERVER) { %>
+      <script type="text/javascript" src="http://localhost:8080/application.js"></script>
+    <% } else { %>
+      <script type="text/javascript" src="application.js"></script>
+    <% } %>
+
+    <div>server side live reload: <%= nodemon_live_reload %></div>
+
+  </body>
+</html>
